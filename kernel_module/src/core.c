@@ -46,6 +46,11 @@
 
 extern struct miscdevice memory_container_dev;
 
+int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
+{
+  printk("Print from memory_container_mmap");
+    return 0;
+}
 
 int memory_container_init(void)
 {

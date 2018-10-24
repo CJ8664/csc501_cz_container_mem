@@ -45,13 +45,6 @@
 #include <linux/sched.h>
 #include <linux/kthread.h>
 
-
-int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
-{
-    return 0;
-}
-
-
 int memory_container_lock(struct memory_container_cmd __user *user_cmd)
 {
     return 0;
