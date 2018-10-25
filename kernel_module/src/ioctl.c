@@ -60,7 +60,7 @@ struct pid_node {
 struct oid_node {
         int oid;
         struct mutex *lock
-}
+};
 
 // Node that stores the CID:OID(list) mapping
 struct cid_node {
@@ -129,7 +129,6 @@ int memory_container_create(struct memory_container_cmd __user *user_cmd)
 
         // Get the current CID
         struct memory_container_cmd *user_cmd_kernal;
-        int current_pid;
 
         user_cmd_kernal = kmalloc(sizeof(struct memory_container_cmd), GFP_KERNEL);
         copy_from_user(user_cmd_kernal, (void *)user_cmd, sizeof(struct memory_container_cmd));
