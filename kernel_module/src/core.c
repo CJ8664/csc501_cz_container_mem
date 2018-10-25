@@ -55,13 +55,10 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         kmalloc_ptr=kmalloc(LEN+2*PAGE_SIZE, GFP_KERNEL);
         kmalloc_area=(int *)(((unsigned long)kmalloc_ptr + PAGE_SIZE -1) & PAGE_MASK);
         vma->flags |= VM_LOCKED;
-        if (remap_page_range(vma->vm_start,
-                             virt_to_phys((void*)((unsigned long)kmalloc_area)),
-                             4096,
-                             PAGE_SHARED))
+        if (remap_pfn_range(vma, vma->vm_start, virt_to_phys((void *)kmalloc_area) >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
         {
-                printk("remap page range failed\n");
-                return -ENXIO;
+                printk("remap_pfn_range failed\n");
+                return -EIO;
         }
         return 0;
 }
