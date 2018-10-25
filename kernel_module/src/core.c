@@ -50,7 +50,7 @@ extern struct miscdevice memory_container_dev;
 
 int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 {
-        printk("Print from memory_container_mmap");
+        printk("Print from memory_container_mmap %d", LEN+2*PAGE_SIZE);
         static int *kmalloc_area = NULL;
         kmalloc_ptr=kmalloc(LEN+2*PAGE_SIZE, GFP_KERNEL);
         kmalloc_area=(int *)(((unsigned long)kmalloc_ptr + PAGE_SIZE -1) & PAGE_MASK);

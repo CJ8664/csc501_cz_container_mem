@@ -45,33 +45,40 @@
 #include <linux/sched.h>
 #include <linux/kthread.h>
 
+//
+// int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
+// {
+//     return 0;
+// }
+
+
 int memory_container_lock(struct memory_container_cmd __user *user_cmd)
 {
-    return 0;
+        return 0;
 }
 
 
 int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
 {
-    return 0;
+        return 0;
 }
 
 
 int memory_container_delete(struct memory_container_cmd __user *user_cmd)
 {
-    return 0;
+        return 0;
 }
 
 
 int memory_container_create(struct memory_container_cmd __user *user_cmd)
 {
-    return 0;
+        return 0;
 }
 
 
 int memory_container_free(struct memory_container_cmd __user *user_cmd)
 {
-    return 0;
+        return 0;
 }
 
 
@@ -80,21 +87,21 @@ int memory_container_free(struct memory_container_cmd __user *user_cmd)
  * corresponding functions.
  */
 int memory_container_ioctl(struct file *filp, unsigned int cmd,
-                              unsigned long arg)
+                           unsigned long arg)
 {
-    switch (cmd)
-    {
-    case MCONTAINER_IOCTL_CREATE:
-        return memory_container_create((void __user *)arg);
-    case MCONTAINER_IOCTL_DELETE:
-        return memory_container_delete((void __user *)arg);
-    case MCONTAINER_IOCTL_LOCK:
-        return memory_container_lock((void __user *)arg);
-    case MCONTAINER_IOCTL_UNLOCK:
-        return memory_container_unlock((void __user *)arg);
-    case MCONTAINER_IOCTL_FREE:
-        return memory_container_free((void __user *)arg);
-    default:
-        return -ENOTTY;
-    }
+        switch (cmd)
+        {
+        case MCONTAINER_IOCTL_CREATE:
+                return memory_container_create((void __user *)arg);
+        case MCONTAINER_IOCTL_DELETE:
+                return memory_container_delete((void __user *)arg);
+        case MCONTAINER_IOCTL_LOCK:
+                return memory_container_lock((void __user *)arg);
+        case MCONTAINER_IOCTL_UNLOCK:
+                return memory_container_unlock((void __user *)arg);
+        case MCONTAINER_IOCTL_FREE:
+                return memory_container_free((void __user *)arg);
+        default:
+                return -ENOTTY;
+        }
 }
