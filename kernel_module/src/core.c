@@ -48,27 +48,37 @@ extern struct miscdevice memory_container_dev;
 
 int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 {
-  printk("Print from memory_container_mmap");
-    return 0;
+        printk("Print from memory_container_mmap");
+        static int *kmalloc_area = NULL;
+        vma->flags |= VM_LOCKED;
+        if (remap_page_range(vma->vm_start,
+                             virt_to_phys((void*)((unsigned long)kmalloc_area)),
+                             size,
+                             PAGE_SHARED))
+        {
+                printk("remap page range failed\n");
+                return -ENXIO;
+        }
+        return 0;
 }
 
 int memory_container_init(void)
 {
-    int ret;
+        int ret;
 
-    if ((ret = misc_register(&memory_container_dev)))
-    {
-        printk(KERN_ERR "Unable to register \"memory_container\" misc device\n");
+        if ((ret = misc_register(&memory_container_dev)))
+        {
+                printk(KERN_ERR "Unable to register \"memory_container\" misc device\n");
+                return ret;
+        }
+
+        printk(KERN_ERR "\"memory_container\" misc device installed\n");
+        printk(KERN_ERR "\"memory_container\" version 0.1\n");
         return ret;
-    }
-
-    printk(KERN_ERR "\"memory_container\" misc device installed\n");
-    printk(KERN_ERR "\"memory_container\" version 0.1\n");
-    return ret;
 }
 
 
 void memory_container_exit(void)
 {
-    misc_deregister(&memory_container_dev);
+        misc_deregister(&memory_container_dev);
 }
