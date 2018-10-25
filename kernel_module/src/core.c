@@ -50,18 +50,16 @@ extern struct miscdevice memory_container_dev;
 
 int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 {
-        printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
-        printk("Requested siz: %lu\n", vma->vm_end - vma->vm_start);
-
-
         int *kmalloc_area = NULL;
         int *kmalloc_ptr = NULL;
-        u64 vtp = virt_to_phys((void *)kmalloc_area);
-
-        printk("VTP: %llu\n", vtp);
 
         kmalloc_ptr=kmalloc(LEN+2*PAGE_SIZE, GFP_KERNEL);
         kmalloc_area=(int *)(((unsigned long)kmalloc_ptr + PAGE_SIZE -1) & PAGE_MASK);
+        u64 vtp = virt_to_phys((void *)kmalloc_area);
+
+        printk("VTP: %llu\n", vtp);
+        printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
+        printk("Requested size: %lu\n", vma->vm_end - vma->vm_start);
 
         if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
         {
