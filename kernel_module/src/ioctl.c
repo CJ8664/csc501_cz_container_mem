@@ -45,11 +45,65 @@
 #include <linux/sched.h>
 #include <linux/kthread.h>
 
-//
-// int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
-// {
-//     return 0;
-// }
+// Mutex for performing any updates on pid_cid_list
+static DEFINE_MUTEX(pid_list_lock);
+
+// Node that stores PID:CID mapping
+struct pid_node {
+        int pid;
+        int cid;
+        int valid;
+        struct pid_node *next;
+};
+
+// Node that stores OID data
+struct oid_node {
+        int oid;
+        struct mutex *lock
+}
+
+// Node that stores the CID:OID(list) mapping
+struct cid_node {
+        int cid;
+        int valid;
+        struct cid_node *next;
+};
+
+// Actual list that stores the PID nodes
+struct pid_node *pid_list = NULL;
+
+void add_pid_node(int pid, int cid){
+
+        mutex_lock(&pid_list_lock);
+        if(pid_list == NULL) {
+                // First PID ever
+                pid_list = (struct pid_node *)kmalloc(sizeof(struct pid_node), GFP_KERNEL);
+                pid_list->pid = pid;
+                pid_list->cid = cid;
+                pid_list->next = NULL;
+                pid_list->valid = 1;
+        } else {
+                // Later PIDs, find the tail
+                struct pid_node *prev_pid_node = NULL;
+                struct pid_node *temp_pid_node = pid_list;
+                struct pid_node *new_pid_node;
+
+                while (temp_pid_node != NULL) {
+                        prev_pid_node = temp_pid_node;
+                        temp_pid_node = temp_pid_node->next;
+                }
+
+                // Initialize new PID node and add at tail
+                new_pid_node = (struct pid_node *)kmalloc(sizeof(struct pid_node), GFP_KERNEL);
+                new_pid_node->pid = pid;
+                new_pid_node->cid = cid;
+                new_pid_node->next = NULL;
+                new_pid_node->valid = 1;
+                prev_pid_node->next = new_pid_node;
+        }
+        mutex_unlock(&pid_list_lock);
+        return;
+}
 
 
 int memory_container_lock(struct memory_container_cmd __user *user_cmd)
@@ -72,6 +126,17 @@ int memory_container_delete(struct memory_container_cmd __user *user_cmd)
 
 int memory_container_create(struct memory_container_cmd __user *user_cmd)
 {
+
+        // Get the current CID
+        struct memory_container_cmd *user_cmd_kernal;
+        int current_pid;
+
+        user_cmd_kernal = kmalloc(sizeof(struct memory_container_cmd), GFP_KERNEL);
+        copy_from_user(user_cmd_kernal, (void *)user_cmd, sizeof(struct memory_container_cmd));
+
+        // Add the PID:CID mapping node
+        add_pid_node(current->pid, user_cmd_kernal->cid);
+
         return 0;
 }
 
