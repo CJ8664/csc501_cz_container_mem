@@ -59,7 +59,7 @@ struct pid_node {
 // Node that stores OID data
 struct oid_node {
         int oid;
-        struct mutex *lock
+        struct mutex *lock;
 };
 
 // Node that stores the CID:OID(list) mapping
