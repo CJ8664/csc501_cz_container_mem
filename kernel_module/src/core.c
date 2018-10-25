@@ -53,7 +53,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         vma->flags |= VM_LOCKED;
         if (remap_page_range(vma->vm_start,
                              virt_to_phys((void*)((unsigned long)kmalloc_area)),
-                             size,
+                             4096,
                              PAGE_SHARED))
         {
                 printk("remap page range failed\n");
