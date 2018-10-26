@@ -221,6 +221,7 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
         } else {
                 printk("Skip adding OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
         }
+        mutex_unlock(&oid_list_lock);
         return oid_ptr;
 }
 
