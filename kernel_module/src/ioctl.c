@@ -275,10 +275,13 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         unsigned long requested_size = vma->vm_end - vma->vm_start;
         __u64 vtp;
 
-        if (pid_list == NULL) {
+        struct oid_node *oid_ptr = get_oid_ptr_from_cid(0, 0);
+
+        if (oid_ptr->address == -1) {
                 kmalloc_ptr = NULL;
                 kmalloc_ptr=kmalloc(requested_size, GFP_KERNEL);
                 vtp = virt_to_phys((void *)kmalloc_ptr);
+                oid_ptr->address = vtp;
 
                 printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
