@@ -276,6 +276,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         __u64 vtp;
 
         if (oid_list == NULL) {
+                kmalloc_ptr = NULL;
                 kmalloc_ptr=kmalloc(requested_size, GFP_KERNEL);
                 vtp = virt_to_phys((void *)kmalloc_ptr);
 
