@@ -282,8 +282,8 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         printk("Requested size: %lu\n", vma->vm_end - vma->vm_start);
         printk("Start: %lu\n", vma->vm_start);
         printk("End: %lu\n", vma->vm_end);
-        printk("PAGE_SHIFT %lu\n", PAGE_SHIFT);
-        printk("PAGE_SHIFT value %lu\n",vtp >> PAGE_SHIFT);
+        printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
+        printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
 
         if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
         {
