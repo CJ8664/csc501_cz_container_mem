@@ -153,30 +153,6 @@ int get_cid_for_pid(int pid){
         return cid;
 }
 
-void update_lock_oid_in_cid(__u64 oid, int cid, int op){
-
-        struct oid_node *oid_ptr;
-        // Get refernce to the oid
-        oid_ptr = get_oid_ptr_from_cid(oid, cid);
-        printk("Updating lock for OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
-
-        if (oid_ptr == -1) {
-                printk("OID %llu deleted or is invalid\n", oid);
-                return;
-        }
-
-        if(op == 1) {
-                // Lock the oid
-                mutex_lock(oid_ptr->lock);
-                printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
-        } else if (op == 0) {
-                // Unlock the oid
-                mutex_unlock(oid_ptr->lock);
-                printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
-        }
-        return;
-}
-
 struct oid_node* lookup_oid_from_cid(__u64 oid, int cid){
 
         struct oid_node *oid_ptr = NULL;
@@ -280,6 +256,29 @@ int memory_container_lock(struct memory_container_cmd __user *user_cmd)
         return 0;
 }
 
+void update_lock_oid_in_cid(__u64 oid, int cid, int op){
+
+        struct oid_node *oid_ptr;
+        // Get refernce to the oid
+        oid_ptr = get_oid_ptr_from_cid(oid, cid);
+        printk("Updating lock for OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+
+        if (oid_ptr == NULL) {
+                printk("OID %llu deleted or is invalid\n", oid);
+                return;
+        }
+
+        if(op == 1) {
+                // Lock the oid
+                mutex_lock(oid_ptr->lock);
+                printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+        } else if (op == 0) {
+                // Unlock the oid
+                mutex_unlock(oid_ptr->lock);
+                printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+        }
+        return;
+}
 
 int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
 {
