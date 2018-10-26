@@ -75,6 +75,7 @@ struct pid_node *pid_list = NULL;
 void add_pid_node(int pid, int cid){
 
         mutex_lock(&pid_list_lock);
+        printk("Adding PID: %d to CID: %d", pid, cid);
         if(pid_list == NULL) {
                 // First PID ever
                 pid_list = (struct pid_node *)kmalloc(sizeof(struct pid_node), GFP_KERNEL);
@@ -111,6 +112,7 @@ void remove_pid_node(int pid){
         struct pid_node *prev_pid = NULL;
 
         mutex_lock(&pid_list_lock);
+        printk("Deleting PID: %d", pid);
         curr_pid = pid_list;
 
         while (curr_pid != NULL) {
