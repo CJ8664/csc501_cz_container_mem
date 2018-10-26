@@ -375,8 +375,24 @@ int memory_container_create(struct memory_container_cmd __user *user_cmd)
 
 int memory_container_free(struct memory_container_cmd __user *user_cmd)
 {
-        struct oid_node *oid_ptr = get_oid_ptr_from_cid(0, 0);
-        kfree(oid_ptr->address);
+        int cid;
+        struct memory_container_cmd *user_cmd_kernal;
+        struct oid_node *oid_ptr;
+
+        // Get the CID for PID
+        cid = get_cid_for_pid(current->pid);
+
+        // Get OID from user_cmd
+        user_cmd_kernal = kmalloc(sizeof(struct memory_container_cmd), GFP_KERNEL);
+        copy_from_user(user_cmd_kernal, (void *)user_cmd, sizeof(struct memory_container_cmd));
+
+        oid_ptr = get_oid_ptr_from_cid(user_cmd_kernal->oid, cid);
+
+        // Free the memory held by the object
+        kfree((void *)oid_ptr->address);
+        oid_ptr->address = -1;
+        printk("Memory freed for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
+
         return 0;
 }
 
