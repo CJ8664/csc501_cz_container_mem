@@ -354,7 +354,6 @@ int memory_container_delete(struct memory_container_cmd __user *user_cmd)
 {
         // Delete the PID from list
         remove_pid_node(current->pid);
-        kfree(oid_ptr->address);
         return 0;
 }
 
@@ -377,7 +376,7 @@ int memory_container_create(struct memory_container_cmd __user *user_cmd)
 int memory_container_free(struct memory_container_cmd __user *user_cmd)
 {
         struct oid_node *oid_ptr = get_oid_ptr_from_cid(0, 0);
-
+        kfree(oid_ptr->address);
         return 0;
 }
 
