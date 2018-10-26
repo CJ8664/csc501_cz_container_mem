@@ -105,6 +105,25 @@ void add_pid_node(int pid, int cid){
         return;
 }
 
+void remove_pid_node(int pid){
+
+        struct pid_node *curr_pid;
+        struct pid_node *prev_pid = NULL;
+
+        mutex_lock(&pid_list_lock);
+        curr_pid = pid_list;
+
+        while (curr_pid != NULL) {
+                if(curr_pid->pid == pid) {
+                        // PID reference found, soft delete
+                        curr_pid->valid = 0;
+                        break;
+                }
+                prev_pid = curr_pid;
+                curr_pid = curr_pid->next;
+        }
+        mutex_unlock(&pid_list_lock);
+}
 
 int memory_container_lock(struct memory_container_cmd __user *user_cmd)
 {
@@ -120,13 +139,14 @@ int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
 
 int memory_container_delete(struct memory_container_cmd __user *user_cmd)
 {
+        // Delete the PID from list
+        remove_pid_node(current->pid);
         return 0;
 }
 
 
 int memory_container_create(struct memory_container_cmd __user *user_cmd)
 {
-
         // Get the current CID
         struct memory_container_cmd *user_cmd_kernal;
 
