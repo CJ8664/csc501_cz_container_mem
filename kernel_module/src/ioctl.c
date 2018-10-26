@@ -273,10 +273,11 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         int *kmalloc_area = NULL;
         int *kmalloc_ptr = NULL;
         unsigned long requested_size = vma->vm_end - vma->vm_start;
+        __u64 vtp;
 
         if (kmalloc_ptr == NULL) {
                 kmalloc_ptr=kmalloc(requested_size, GFP_KERNEL);
-                __u64 vtp = virt_to_phys((void *)kmalloc_ptr);
+                vtp = virt_to_phys((void *)kmalloc_ptr);
 
                 printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
