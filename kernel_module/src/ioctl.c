@@ -45,6 +45,8 @@
 #include <linux/sched.h>
 #include <linux/kthread.h>
 
+#define LEN (64*1024)
+
 // Mutex for performing any updates on pid_list
 static DEFINE_MUTEX(pid_list_lock);
 
@@ -263,6 +265,27 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
                 printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
         }
         return;
+}
+
+int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
+{
+        int *kmalloc_area = NULL;
+        int *kmalloc_ptr = NULL;
+
+        kmalloc_ptr=kmalloc(LEN+2*PAGE_SIZE, GFP_KERNEL);
+        kmalloc_area=(int *)(((unsigned long)kmalloc_ptr + PAGE_SIZE -1) & PAGE_MASK);
+        __u64 vtp = virt_to_phys((void *)kmalloc_area);
+
+        printk("VTP: %llu\n", vtp);
+        printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
+        printk("Requested size: %lu\n", vma->vm_end - vma->vm_start);
+
+        if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
+        {
+                printk("remap_pfn_range failed\n");
+                return -EIO;
+        }
+        return 0;
 }
 
 int memory_container_lock(struct memory_container_cmd __user *user_cmd)
