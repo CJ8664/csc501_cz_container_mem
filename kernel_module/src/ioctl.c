@@ -270,12 +270,12 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
 int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 {
 
-        int *kmalloc_area = NULL;
-        int *kmalloc_ptr = NULL;
+        int *kmalloc_area;
+        int *kmalloc_ptr;
         unsigned long requested_size = vma->vm_end - vma->vm_start;
         __u64 vtp;
 
-        if (kmalloc_ptr == NULL) {
+        if (oid_list == NULL) {
                 kmalloc_ptr=kmalloc(requested_size, GFP_KERNEL);
                 vtp = virt_to_phys((void *)kmalloc_ptr);
 
