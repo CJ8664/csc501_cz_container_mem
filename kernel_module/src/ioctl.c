@@ -246,7 +246,7 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         struct oid_node *oid_ptr;
         // Get refernce to the oid
         oid_ptr = get_oid_ptr_from_cid(oid, cid);
-        printk("Updating lock for OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+        printk("Updating lock for OID: %llu from CID: %d by PID: %d OP: %d\n", oid, cid, current->pid, op);
 
         if (oid_ptr == NULL) {
                 printk("OID %llu deleted or is invalid\n", oid);
@@ -279,7 +279,6 @@ int memory_container_lock(struct memory_container_cmd __user *user_cmd)
         cid = get_cid_for_pid(current->pid);
 
         update_lock_oid_in_cid(user_cmd_kernal->oid, cid, 1); // 1 Means unlock
-        printk("Lock OID: %llu from PID: %d from CID: %d\n", user_cmd_kernal->oid, current->pid, cid);
         return 0;
 }
 
@@ -297,8 +296,6 @@ int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
         cid = get_cid_for_pid(current->pid);
 
         update_lock_oid_in_cid(user_cmd_kernal->oid, cid, 0); // 0 Means unlock
-        printk("Unlock OID: %llu from PID: %d from CID: %d\n", user_cmd_kernal->oid, current->pid, cid);
-
         return 0;
 }
 
