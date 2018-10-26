@@ -194,6 +194,7 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                         oid_list->next = NULL;
                         oid_list->valid = 1;
                         oid_list->address = -1;
+                        oid_list->lock = (struct mutex *)kmalloc(sizeof(struct mutex), GFP_KERNEL);
                         mutex_init(oid_list->lock);
                         oid_ptr = oid_list;
                 } else {
@@ -214,6 +215,7 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                         new_oid_node->next = NULL;
                         new_oid_node->valid = 1;
                         new_oid_node->address = -1;
+                        new_oid_node->lock = (struct mutex *)kmalloc(sizeof(struct mutex), GFP_KERNEL);
                         mutex_init(new_oid_node->lock);
                         prev_oid_node->next = new_oid_node;
                         oid_ptr = new_oid_node;
