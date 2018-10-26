@@ -155,13 +155,13 @@ int get_cid_for_pid(int pid){
 
 void update_lock_oid_in_cid(__u64 oid, int cid, int op){
 
-        struct oid_node *requested_oid;
+        struct oid_node *oid_ptr;
         // Get refernce to the oid
-        requested_oid = get_oid_ptr_from_cid(oid, cid);
+        oid_ptr = get_oid_ptr_from_cid(oid, cid);
         printk("Updating lock for OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
 
         if (oid_ptr == -1) {
-                printk("OID %llu deleted or is invalid\n", requested_oid);
+                printk("OID %llu deleted or is invalid\n", oid);
                 return;
         }
 
@@ -186,7 +186,7 @@ struct oid_node* get_oid_ptr_from_cid(__u64 oid, int cid){
 
         if (oid_ptr == NULL) {
                 // If OID reference not found, create OID node and add to list
-                oid_ptr = add_oid_node(__u64 oid, int cid);
+                oid_ptr = add_oid_node(oid, cid);
         }
         return oid_ptr;
 }
@@ -237,7 +237,7 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                 } else {
                         // Later OIDs, find the tail
                         struct oid_node *prev_oid_node = NULL;
-                        struct oid_node *temp_oid_node = cid_list;
+                        struct oid_node *temp_oid_node = oid_list;
                         struct oid_node *new_oid_node;
 
                         while (temp_oid_node != NULL) {
