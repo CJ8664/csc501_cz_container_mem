@@ -177,20 +177,6 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         return;
 }
 
-struct oid_node* get_oid_ptr_from_cid(__u64 oid, int cid){
-
-        struct oid_node *oid_ptr;
-
-        // Lookup OID in CID, will get null if OID:CID doesn't exist
-        oid_ptr = lookup_oid_from_cid(oid, cid);
-
-        if (oid_ptr == NULL) {
-                // If OID reference not found, create OID node and add to list
-                oid_ptr = add_oid_node(oid, cid);
-        }
-        return oid_ptr;
-}
-
 struct oid_node* lookup_oid_from_cid(__u64 oid, int cid){
 
         struct oid_node *oid_ptr = NULL;
@@ -258,6 +244,20 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                 }
         } else {
                 printk("Skip adding OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
+        }
+        return oid_ptr;
+}
+
+struct oid_node* get_oid_ptr_from_cid(__u64 oid, int cid){
+
+        struct oid_node *oid_ptr;
+
+        // Lookup OID in CID, will get null if OID:CID doesn't exist
+        oid_ptr = lookup_oid_from_cid(oid, cid);
+
+        if (oid_ptr == NULL) {
+                // If OID reference not found, create OID node and add to list
+                oid_ptr = add_oid_node(oid, cid);
         }
         return oid_ptr;
 }
