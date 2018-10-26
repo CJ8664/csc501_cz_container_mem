@@ -80,7 +80,7 @@ struct oid_node *oid_list = NULL;
 void add_pid_node(int pid, int cid){
 
         mutex_lock(&pid_list_lock);
-        // printk("Adding PID: %d to CID: %d\n", pid, cid);
+        printk("Adding PID: %d to CID: %d\n", pid, cid);
         if(pid_list == NULL) {
                 // First PID ever
                 pid_list = (struct pid_node *)kmalloc(sizeof(struct pid_node), GFP_KERNEL);
