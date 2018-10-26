@@ -80,7 +80,7 @@ struct oid_node *oid_list = NULL;
 void add_pid_node(int pid, int cid){
 
         mutex_lock(&pid_list_lock);
-        printk("Adding PID: %d to CID: %d\n", pid, cid);
+        // printk("Adding PID: %d to CID: %d\n", pid, cid);
         if(pid_list == NULL) {
                 // First PID ever
                 pid_list = (struct pid_node *)kmalloc(sizeof(struct pid_node), GFP_KERNEL);
@@ -117,7 +117,7 @@ void remove_pid_node(int pid){
         struct pid_node *prev_pid = NULL;
 
         mutex_lock(&pid_list_lock);
-        printk("Deleting PID: %d\n", pid);
+        // printk("Deleting PID: %d\n", pid);
         curr_pid = pid_list;
 
         while (curr_pid != NULL) {
@@ -151,7 +151,7 @@ int get_cid_for_pid(int pid){
                 prev_pid = curr_pid;
                 curr_pid = curr_pid->next;
         }
-        printk("PID: %d belongs to CID: %d\n", pid, cid);
+        // printk("PID: %d belongs to CID: %d\n", pid, cid);
         return cid;
 }
 
@@ -161,7 +161,7 @@ struct oid_node* lookup_oid_from_cid(__u64 oid, int cid){
         struct oid_node *curr_oid;
         struct oid_node *prev_oid = NULL;
 
-        printk("Searching OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
+        // printk("Searching OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
 
         curr_oid = oid_list;
         while (curr_oid != NULL) {
@@ -187,7 +187,7 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
 
         if (oid_ptr == NULL) {
                 // Create new OID node, and no one else can now create it since lock is taken
-                printk("Adding OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
+                // printk("Adding OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
                 if(oid_list == NULL) {
                         // First OID ever
                         oid_list = (struct oid_node *)kmalloc(sizeof(struct oid_node), GFP_KERNEL);
@@ -223,7 +223,7 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                         oid_ptr = new_oid_node;
                 }
         } else {
-                printk("Skip adding OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
+                // printk("Skip adding OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
         }
         mutex_unlock(&oid_list_lock);
         return oid_ptr;
@@ -248,21 +248,21 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         struct oid_node *oid_ptr;
         // Get refernce to the oid
         oid_ptr = get_oid_ptr_from_cid(oid, cid);
-        printk("Updating lock for OID: %llu from CID: %d by PID: %d OP: %d\n", oid, cid, current->pid, op);
+        // printk("Updating lock for OID: %llu from CID: %d by PID: %d OP: %d\n", oid, cid, current->pid, op);
 
         if (oid_ptr == NULL) {
-                printk("OID %llu deleted or is invalid\n", oid);
+                // printk("OID %llu deleted or is invalid\n", oid);
                 return;
         }
 
         if(op == 1) {
                 // Lock the oid
                 mutex_lock(oid_ptr->lock);
-                printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+                // printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
         } else if (op == 0) {
                 // Unlock the oid
                 mutex_unlock(oid_ptr->lock);
-                printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+                // printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
         }
         return;
 }
@@ -274,22 +274,38 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         int *kmalloc_ptr = NULL;
         unsigned long requested_size = vma->vm_end - vma->vm_start;
 
-        kmalloc_ptr=kmalloc(requested_size, GFP_KERNEL);
-        kmalloc_area=(int *)(((unsigned long)kmalloc_ptr + PAGE_SIZE -1) & PAGE_MASK);
-        __u64 vtp = virt_to_phys((void *)kmalloc_ptr);
+        if (kmalloc_ptr == NULL) {
+                kmalloc_ptr=kmalloc(requested_size, GFP_KERNEL);
+                __u64 vtp = virt_to_phys((void *)kmalloc_ptr);
 
-        printk("VTP: %llu\n", vtp);
-        printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
-        printk("Requested size: %lu\n", requested_size);
-        printk("Start: %lu\n", vma->vm_start);
-        printk("End: %lu\n", vma->vm_end);
-        printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
-        printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
+                printk("VTP: %llu\n", vtp);
+                // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
+                // printk("Requested size: %lu\n", requested_size);
+                printk("Start: %lu\n", vma->vm_start);
+                printk("End: %lu\n", vma->vm_end);
+                printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
+                printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
 
-        if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
-        {
-                printk("remap_pfn_range failed\n");
-                return -EIO;
+                if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
+                {
+                        printk("remap_pfn_range failed\n");
+                        return -EIO;
+                }
+
+        } else {
+                printk("reusing\n");
+                printk("VTP: %llu\n", vtp);
+                // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
+                // printk("Requested size: %lu\n", requested_size);
+                printk("Start: %lu\n", vma->vm_start);
+                printk("End: %lu\n", vma->vm_end);
+                printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
+                printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
+                if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
+                {
+                        printk("remap_pfn_range failed\n");
+                        return -EIO;
+                }
         }
         return 0;
 }
