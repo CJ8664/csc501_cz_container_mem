@@ -162,7 +162,7 @@ int memory_container_lock(struct memory_container_cmd __user *user_cmd)
         // Get CID for PID
         cid = get_cid_for_pid(current->pid);
 
-        printk("Lock OID: %d from CID: %d\n", user_cmd_kernal->oid, cid);
+        printk("Lock OID: %d from PID: %d from CID: %d\n", user_cmd_kernal->oid, cid);
         return 0;
 }
 
@@ -180,7 +180,7 @@ int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
         // Get CID for PID
         cid = get_cid_for_pid(current->pid);
 
-        printk("Unlock OID: %d from CID: %d\n", user_cmd_kernal->oid, cid);
+        printk("Unlock OID: %d from PID: %d from CID: %d\n", user_cmd_kernal->oid, cid);
         return 0;
 }
 
