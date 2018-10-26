@@ -55,7 +55,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 
         kmalloc_ptr=kmalloc(LEN+2*PAGE_SIZE, GFP_KERNEL);
         kmalloc_area=(int *)(((unsigned long)kmalloc_ptr + PAGE_SIZE -1) & PAGE_MASK);
-        u64 vtp = virt_to_phys((void *)kmalloc_area);
+        __u64 vtp = virt_to_phys((void *)kmalloc_area);
 
         printk("VTP: %llu\n", vtp);
         printk("PAGE_SIZE: %lu\n", PAGE_SIZE);

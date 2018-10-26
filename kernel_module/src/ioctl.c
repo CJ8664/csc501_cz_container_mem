@@ -58,7 +58,7 @@ struct pid_node {
 
 // Node that stores OID data
 struct oid_node {
-        int oid;
+        __u64 oid;
         struct mutex *lock;
 };
 
@@ -75,7 +75,7 @@ struct pid_node *pid_list = NULL;
 void add_pid_node(int pid, int cid){
 
         mutex_lock(&pid_list_lock);
-        printk("Adding PID: %d to CID: %d", pid, cid);
+        printk("Adding PID: %d to CID: %d\n", pid, cid);
         if(pid_list == NULL) {
                 // First PID ever
                 pid_list = (struct pid_node *)kmalloc(sizeof(struct pid_node), GFP_KERNEL);
@@ -112,7 +112,7 @@ void remove_pid_node(int pid){
         struct pid_node *prev_pid = NULL;
 
         mutex_lock(&pid_list_lock);
-        printk("Deleting PID: %d", pid);
+        printk("Deleting PID: %d\n", pid);
         curr_pid = pid_list;
 
         while (curr_pid != NULL) {
@@ -127,14 +127,60 @@ void remove_pid_node(int pid){
         mutex_unlock(&pid_list_lock);
 }
 
+int get_cid_for_pid(int pid){
+        struct pid_node *curr_pid;
+        struct pid_node *prev_pid = NULL;
+        int cid;
+
+        // If PID is not present or was deleted
+        cid = -1;
+
+        curr_pid = pid_list;
+        while (curr_pid != NULL) {
+                if(curr_pid->pid == pid) {
+                        // PID reference found, soft delete
+                        cid = curr_pid->cid;
+                        break;
+                }
+                prev_pid = curr_pid;
+                curr_pid = curr_pid->next;
+        }
+        printk("PID: %d belongs to CID: %d\n", pid, cid);
+        return cid;
+}
+
 int memory_container_lock(struct memory_container_cmd __user *user_cmd)
 {
+        int cid;
+
+        // Get the current CID
+        struct memory_container_cmd *user_cmd_kernal;
+
+        user_cmd_kernal = kmalloc(sizeof(struct memory_container_cmd), GFP_KERNEL);
+        copy_from_user(user_cmd_kernal, (void *)user_cmd, sizeof(struct memory_container_cmd));
+
+        // Get CID for PID
+        cid = get_cid_for_pid(current->pid);
+
+        printk("Lock OID: %d from CID: %d\n", user_cmd_kernal->oid, cid);
         return 0;
 }
 
 
 int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
 {
+        int cid;
+
+        // Get the current CID
+        struct memory_container_cmd *user_cmd_kernal;
+
+        user_cmd_kernal = kmalloc(sizeof(struct memory_container_cmd), GFP_KERNEL);
+        copy_from_user(user_cmd_kernal, (void *)user_cmd, sizeof(struct memory_container_cmd));
+
+        // Get CID for PID
+        cid = get_cid_for_pid(current->pid);
+
+        printk("Unlock OID: %d from CID: %d\n", user_cmd_kernal->oid, cid);
         return 0;
 }
 
