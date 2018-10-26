@@ -238,24 +238,6 @@ struct oid_node* get_oid_ptr_from_cid(__u64 oid, int cid){
         return oid_ptr;
 }
 
-int memory_container_lock(struct memory_container_cmd __user *user_cmd)
-{
-        int cid;
-
-        // Get the current CID
-        struct memory_container_cmd *user_cmd_kernal;
-
-        user_cmd_kernal = kmalloc(sizeof(struct memory_container_cmd), GFP_KERNEL);
-        copy_from_user(user_cmd_kernal, (void *)user_cmd, sizeof(struct memory_container_cmd));
-
-        // Get CID for PID
-        cid = get_cid_for_pid(current->pid);
-
-        update_lock_oid_in_cid(user_cmd_kernal->oid, cid, 1); // 1 Means unlock
-        printk("Lock OID: %llu from PID: %d from CID: %d\n", user_cmd_kernal->oid, current->pid, cid);
-        return 0;
-}
-
 void update_lock_oid_in_cid(__u64 oid, int cid, int op){
 
         struct oid_node *oid_ptr;
@@ -278,6 +260,24 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
                 printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
         }
         return;
+}
+
+int memory_container_lock(struct memory_container_cmd __user *user_cmd)
+{
+        int cid;
+
+        // Get the current CID
+        struct memory_container_cmd *user_cmd_kernal;
+
+        user_cmd_kernal = kmalloc(sizeof(struct memory_container_cmd), GFP_KERNEL);
+        copy_from_user(user_cmd_kernal, (void *)user_cmd, sizeof(struct memory_container_cmd));
+
+        // Get CID for PID
+        cid = get_cid_for_pid(current->pid);
+
+        update_lock_oid_in_cid(user_cmd_kernal->oid, cid, 1); // 1 Means unlock
+        printk("Lock OID: %llu from PID: %d from CID: %d\n", user_cmd_kernal->oid, current->pid, cid);
+        return 0;
 }
 
 int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
