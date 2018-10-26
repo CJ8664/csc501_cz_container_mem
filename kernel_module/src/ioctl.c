@@ -281,7 +281,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
                 kmalloc_ptr = NULL;
                 kmalloc_ptr=kmalloc(requested_size, GFP_KERNEL);
                 vtp = virt_to_phys((void *)kmalloc_ptr);
-                oid_ptr->address = vtp;
+                oid_ptr->address = kmalloc_ptr;
 
                 printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
@@ -298,15 +298,15 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
                 }
 
         } else {
-                printk("reusing\n");
-                printk("VTP: %llu\n", oid_ptr->address);
+                vtp = virt_to_phys((void *)oid_ptr->address);
+                printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
                 // printk("Requested size: %lu\n", requested_size);
                 printk("Start: %lu\n", vma->vm_start);
                 printk("End: %lu\n", vma->vm_end);
                 printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
-                printk("PAGE_SHIFT value %llu\n",oid_ptr->address >> PAGE_SHIFT);
-                if (remap_pfn_range(vma, vma->vm_start, oid_ptr->address >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
+                printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
+                if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
                 {
                         printk("remap_pfn_range failed\n");
                         return -EIO;
@@ -354,6 +354,7 @@ int memory_container_delete(struct memory_container_cmd __user *user_cmd)
 {
         // Delete the PID from list
         remove_pid_node(current->pid);
+        kfree(oid_ptr->address);
         return 0;
 }
 
@@ -375,6 +376,8 @@ int memory_container_create(struct memory_container_cmd __user *user_cmd)
 
 int memory_container_free(struct memory_container_cmd __user *user_cmd)
 {
+        struct oid_node *oid_ptr = get_oid_ptr_from_cid(0, 0);
+
         return 0;
 }
 
