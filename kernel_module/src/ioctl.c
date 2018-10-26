@@ -45,32 +45,35 @@
 #include <linux/sched.h>
 #include <linux/kthread.h>
 
-// Mutex for performing any updates on pid_cid_list
+// Mutex for performing any updates on pid_list
 static DEFINE_MUTEX(pid_list_lock);
+
+// Mutex for performing any updates on oid_list
+static DEFINE_MUTEX(oid_list_lock);
 
 // Node that stores PID:CID mapping
 struct pid_node {
-        int pid;
         int cid;
+        int pid;
         int valid;
         struct pid_node *next;
 };
 
 // Node that stores OID data
 struct oid_node {
-        __u64 oid;
-        struct mutex *lock;
-};
-
-// Node that stores the CID:OID(list) mapping
-struct cid_node {
         int cid;
+        __u64 oid;
         int valid;
-        struct cid_node *next;
+        __u64 address;
+        struct mutex *lock;
+        struct oid_node *next;
 };
 
 // Actual list that stores the PID nodes
 struct pid_node *pid_list = NULL;
+
+// Actual list that stores the OID nodes
+struct oid_node *oid_list = NULL;
 
 void add_pid_node(int pid, int cid){
 
@@ -125,6 +128,7 @@ void remove_pid_node(int pid){
                 curr_pid = curr_pid->next;
         }
         mutex_unlock(&pid_list_lock);
+        return;
 }
 
 int get_cid_for_pid(int pid){
@@ -149,6 +153,115 @@ int get_cid_for_pid(int pid){
         return cid;
 }
 
+void update_lock_oid_in_cid(__u64 oid, int cid, int op){
+
+        struct oid_node *requested_oid;
+        // Get refernce to the oid
+        requested_oid = get_oid_ptr_from_cid(oid, cid);
+        printk("Updating lock for OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+
+        if (oid_ptr == -1) {
+                printk("OID %llu deleted or is invalid\n", requested_oid);
+                return;
+        }
+
+        if(op == 1) {
+                // Lock the oid
+                mutex_lock(oid_ptr->lock);
+                printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+        } else if (op == 0) {
+                // Unlock the oid
+                mutex_unlock(oid_ptr->lock);
+                printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+        }
+        return;
+}
+
+struct oid_node* get_oid_ptr_from_cid(__u64 oid, int cid){
+
+        struct oid_node *oid_ptr;
+
+        // Lookup OID in CID, will get null if OID:CID doesn't exist
+        oid_ptr = lookup_oid_from_cid(oid, cid);
+
+        if (oid_ptr == NULL) {
+                // If OID reference not found, create OID node and add to list
+                oid_ptr = add_oid_node(__u64 oid, int cid);
+        }
+        return oid_ptr;
+}
+
+struct oid_node* lookup_oid_from_cid(__u64 oid, int cid){
+
+        struct oid_node *oid_ptr = NULL;
+        struct oid_node *curr_oid;
+        struct oid_node *prev_oid = NULL;
+
+        printk("Searching OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
+
+        curr_oid = oid_list;
+        while (curr_oid != NULL) {
+                if(curr_oid->oid == oid && curr_oid->cid == cid) {
+                        // OID reference found
+                        oid_ptr = curr_oid;
+                        break;
+                }
+                prev_oid = curr_oid;
+                curr_oid = curr_oid->next;
+        }
+        return oid_ptr;
+}
+
+struct oid_node* add_oid_node(__u64 oid, int cid){
+
+        struct oid_node *oid_ptr;
+        mutex_lock(&oid_list_lock);
+
+        // Re-check if OID is not there, if not the PID has taken the lock and
+        // also the responsibility to create the OID node
+        oid_ptr = lookup_oid_from_cid(oid, cid);
+
+        if (oid_ptr == NULL) {
+                // Create new OID node, and no one else can now create it since lock is taken
+                printk("Adding OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
+                if(oid_list == NULL) {
+                        // First OID ever
+                        oid_list = (struct oid_node *)kmalloc(sizeof(struct oid_node), GFP_KERNEL);
+                        oid_list->oid = oid;
+                        oid_list->cid = cid;
+                        oid_list->next = NULL;
+                        oid_list->valid = 1;
+                        oid_list->address = -1;
+                        mutex_init(oid_list->lock);
+                        oid_ptr = oid_list;
+                } else {
+                        // Later OIDs, find the tail
+                        struct oid_node *prev_oid_node = NULL;
+                        struct oid_node *temp_oid_node = cid_list;
+                        struct oid_node *new_oid_node;
+
+                        while (temp_oid_node != NULL) {
+                                prev_oid_node = temp_oid_node;
+                                temp_oid_node = temp_oid_node->next;
+                        }
+
+                        // Initialize new OID node and add at tail
+                        new_oid_node = (struct oid_node *)kmalloc(sizeof(struct oid_node), GFP_KERNEL);
+                        new_oid_node->oid = oid;
+                        new_oid_node->cid = cid;
+                        new_oid_node->next = NULL;
+                        new_oid_node->valid = 1;
+                        new_oid_node->address = -1;
+                        mutex_init(new_oid_node->lock);
+                        prev_oid_node->next = new_oid_node;
+                        oid_ptr = new_oid_node;
+                }
+        } else {
+                printk("Skip adding OID %llu in CID %d by PID: %d\n", oid, cid, current->pid);
+        }
+        return oid_ptr;
+}
+
 int memory_container_lock(struct memory_container_cmd __user *user_cmd)
 {
         int cid;
@@ -162,7 +275,8 @@ int memory_container_lock(struct memory_container_cmd __user *user_cmd)
         // Get CID for PID
         cid = get_cid_for_pid(current->pid);
 
-        printk("Lock OID: %d from PID: %d from CID: %d\n", user_cmd_kernal->oid, current->pid, cid);
+        update_lock_oid_in_cid(user_cmd_kernal->oid, cid, 1); // 1 Means unlock
+        printk("Lock OID: %llu from PID: %d from CID: %d\n", user_cmd_kernal->oid, current->pid, cid);
         return 0;
 }
 
@@ -180,7 +294,9 @@ int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
         // Get CID for PID
         cid = get_cid_for_pid(current->pid);
 
-        printk("Unlock OID: %d from PID: %d from CID: %d\n", user_cmd_kernal->oid, current->pid, cid);
+        update_lock_oid_in_cid(user_cmd_kernal->oid, cid, 0); // 0 Means unlock
+        printk("Unlock OID: %llu from PID: %d from CID: %d\n", user_cmd_kernal->oid, current->pid, cid);
+
         return 0;
 }
 
