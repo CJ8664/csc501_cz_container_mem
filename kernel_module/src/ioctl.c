@@ -275,7 +275,13 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         unsigned long requested_size = vma->vm_end - vma->vm_start;
         __u64 vtp;
 
-        struct oid_node *oid_ptr = get_oid_ptr_from_cid(0, 0);
+        int cid;
+        struct oid_node *oid_ptr;
+
+        // Get the CID for PID
+        cid = get_cid_for_pid(current->pid);
+
+        oid_ptr = get_oid_ptr_from_cid(0, cid);
 
         if (oid_ptr->address == -1) {
                 kmalloc_ptr = NULL;
