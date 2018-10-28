@@ -80,7 +80,7 @@ struct oid_node *oid_list = NULL;
 void add_pid_node(int pid, int cid){
 
         mutex_lock(&pid_list_lock);
-        printk("Adding PID: %d to CID: %d\n", pid, cid);
+        // printk("Adding PID: %d to CID: %d\n", pid, cid);
         if(pid_list == NULL) {
                 // First PID ever
                 pid_list = (struct pid_node *)kmalloc(sizeof(struct pid_node), GFP_KERNEL);
@@ -269,36 +269,37 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
 
 int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 {
-
-        int *kmalloc_area;
         int *kmalloc_ptr;
-        unsigned long requested_size = vma->vm_end - vma->vm_start;
+        unsigned long requested_size;
         __u64 vtp;
-
         int cid;
         struct oid_node *oid_ptr;
 
         // Get the CID for PID
         cid = get_cid_for_pid(current->pid);
 
-        printk("OID: %ld\n", vma->vm_pgoff);
-
+        // Get OID reference for given CID
         oid_ptr = get_oid_ptr_from_cid((__u64)vma->vm_pgoff, cid);
 
-        if (oid_ptr->address == -1) {
-                kmalloc_ptr = NULL;
-                kmalloc_ptr=kmalloc(requested_size, GFP_KERNEL);
-                vtp = virt_to_phys((void *)kmalloc_ptr);
-                oid_ptr->address = kmalloc_ptr;
+        // Calculate requested page size
+        requested_size = vma->vm_end - vma->vm_start;
 
-                printk("OID addr %llu\n", oid_ptr->address);
-                printk("VTP: %llu\n", vtp);
+        if (oid_ptr->address == -1) {
+
+                kmalloc_ptr = NULL;
+                kmalloc_ptr = kmalloc(requested_size, GFP_KERNEL);
+                vtp = virt_to_phys((void *)kmalloc_ptr);
+                oid_ptr->address = (__u64)kmalloc_ptr;
+
+                // printk("OID: %ld\n", vma->vm_pgoff);
+                // printk("OID addr %llu\n", oid_ptr->address);
+                // printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
                 // printk("Requested size: %lu\n", requested_size);
-                printk("Start: %lu\n", vma->vm_start);
-                printk("End: %lu\n", vma->vm_end);
+                // printk("Start: %lu\n", vma->vm_start);
+                // printk("End: %lu\n", vma->vm_end);
                 // printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
-                printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
+                // printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
 
                 if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
                 {
@@ -308,14 +309,17 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 
         } else {
                 vtp = virt_to_phys((void *)oid_ptr->address);
-                printk("OID addr %llu\n", oid_ptr->address);
-                printk("VTP: %llu\n", vtp);
+
+                // printk("OID: %ld\n", vma->vm_pgoff);
+                // printk("OID addr %llu\n", oid_ptr->address);
+                // printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
                 // printk("Requested size: %lu\n", requested_size);
-                printk("Start: %lu\n", vma->vm_start);
-                printk("End: %lu\n", vma->vm_end);
+                // printk("Start: %lu\n", vma->vm_start);
+                // printk("End: %lu\n", vma->vm_end);
                 // printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
-                printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
+                // printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
+
                 if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
                 {
                         printk("remap_pfn_range failed\n");
@@ -401,7 +405,7 @@ int memory_container_free(struct memory_container_cmd __user *user_cmd)
         // Free the memory held by the object
         kfree((void *)oid_ptr->address);
         oid_ptr->address = -1;
-        printk("Memory freed for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
+        // printk("Memory freed for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
 
         return 0;
 }
