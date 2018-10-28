@@ -281,9 +281,9 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         // Get the CID for PID
         cid = get_cid_for_pid(current->pid);
 
-        printk("OFFSET: %ld", vma->vm_pgoff);
+        printk("OID: %ld\n", vma->vm_pgoff);
 
-        oid_ptr = get_oid_ptr_from_cid(0, cid);
+        oid_ptr = get_oid_ptr_from_cid((__u64)vma->vm_pgoff, cid);
 
         if (oid_ptr->address == -1) {
                 kmalloc_ptr = NULL;
