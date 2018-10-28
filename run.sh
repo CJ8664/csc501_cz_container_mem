@@ -18,8 +18,8 @@ printf "Running ./test.sh 128 4096 1 1\n\n"
 # ./test.sh 128 4096 8 1
 # printf "Running ./test.sh 128 4096 16 1\n\n"
 # ./test.sh 128 4096 16 1
-printf "Running ./test.sh 128 4096 64 1\n\n"
-./test.sh 128 4096 64 1
+# printf "Running ./test.sh 128 4096 64 1\n\n"
+# ./test.sh 128 4096 64 1
 # printf "Running ./test.sh 128 4096 128 1\n\n"
 # ./test.sh 128 4096 128 1
 

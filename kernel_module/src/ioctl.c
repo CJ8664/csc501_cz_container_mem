@@ -258,11 +258,11 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         if(op == 1) {
                 // Lock the oid
                 mutex_lock(oid_ptr->lock);
-                // printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+                printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
         } else if (op == 0) {
                 // Unlock the oid
                 mutex_unlock(oid_ptr->lock);
-                // printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+                printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
         }
         return;
 }
