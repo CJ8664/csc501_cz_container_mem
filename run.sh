@@ -63,8 +63,7 @@ printf "Running ./test.sh 128 4096 64 64\n"
 ./test.sh 128 4096 64 64
 printf "\n\n"
 
-printf "combination"
+printf "combination\n\n"
 printf "Running ./test.sh 256 8192 8 4\n"
 ./test.sh 256 8192 8 4
 printf "\n\n"
-#sudo dmesg
