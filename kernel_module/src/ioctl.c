@@ -251,7 +251,7 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         // printk("Updating lock for OID: %llu from CID: %d by PID: %d OP: %d\n", oid, cid, current->pid, op);
 
         if (oid_ptr == NULL) {
-                // printk("OID %llu deleted or is invalid\n", oid);
+                printk("OID %llu deleted or is invalid\n", oid);
                 return;
         }
 
