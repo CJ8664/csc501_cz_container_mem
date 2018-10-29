@@ -245,16 +245,16 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         struct oid_node *oid_ptr;
         // Get refernce to the oid
         oid_ptr = get_oid_ptr_from_cid(oid, cid);
-        printk("Updating lock for OID: %llu from CID: %d by PID: %d OP: %d\n", oid, cid, current->pid, op);
+        // printk("Updating lock for OID: %llu from CID: %d by PID: %d OP: %d\n", oid, cid, current->pid, op);
 
         if(op == 1) {
                 // Lock the oid
                 mutex_lock(oid_ptr->lock);
-                printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+                // printk("Locked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
         } else if (op == 0) {
                 // Unlock the oid
                 mutex_unlock(oid_ptr->lock);
-                printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
+                // printk("Unlocked OID: %llu from CID: %d by PID: %d\n", oid, cid, current->pid);
         }
         return;
 }
@@ -283,7 +283,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
                 oid_ptr->address = kmalloc_ptr;
                 vtp = virt_to_phys(kmalloc_ptr);
 
-                printk("Assigning new mem for OID: %ld from PID: %d\n", vma->vm_pgoff, current->pid);
+                // printk("Assigning new mem for OID: %ld from PID: %d\n", vma->vm_pgoff, current->pid);
                 // printk("OID addr %llu\n", oid_ptr->address);
                 // printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
@@ -302,7 +302,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         } else {
                 vtp = virt_to_phys(oid_ptr->address);
 
-                printk("Accessing mem for OID: %ld\n from PID: %d", vma->vm_pgoff, current->pid);
+                // printk("Accessing mem for OID: %ld\n from PID: %d", vma->vm_pgoff, current->pid);
                 // printk("OID addr %llu\n", oid_ptr->address);
                 // printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
@@ -395,11 +395,11 @@ int memory_container_free(struct memory_container_cmd __user *user_cmd)
         oid_ptr = get_oid_ptr_from_cid(user_cmd_kernal->oid, cid);
 
         // Free the memory held by the object
-        printk("Trying to free Memory for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
-        printk("VOID pointer %pS\n", oid_ptr->address);
+        // printk("Trying to free Memory for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
+        // printk("VOID pointer %pS\n", oid_ptr->address);
         oid_ptr->address = NULL;
         kfree(oid_ptr->address);
-        printk("Memory freed for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
+        // printk("Memory freed for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
 
         return 0;
 }
