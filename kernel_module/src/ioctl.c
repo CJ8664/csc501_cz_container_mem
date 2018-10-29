@@ -65,7 +65,6 @@ struct pid_node {
 struct oid_node {
         int cid;
         __u64 oid;
-        int valid;
         __u64 address;
         struct mutex *lock;
         struct oid_node *next;
@@ -194,7 +193,6 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                         oid_list->oid = oid;
                         oid_list->cid = cid;
                         oid_list->next = NULL;
-                        oid_list->valid = 1;
                         oid_list->address = -1;
                         oid_list->lock = (struct mutex *)kmalloc(sizeof(struct mutex), GFP_KERNEL);
                         mutex_init(oid_list->lock);
@@ -215,7 +213,6 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                         new_oid_node->oid = oid;
                         new_oid_node->cid = cid;
                         new_oid_node->next = NULL;
-                        new_oid_node->valid = 1;
                         new_oid_node->address = -1;
                         new_oid_node->lock = (struct mutex *)kmalloc(sizeof(struct mutex), GFP_KERNEL);
                         mutex_init(new_oid_node->lock);
@@ -248,12 +245,7 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         struct oid_node *oid_ptr;
         // Get refernce to the oid
         oid_ptr = get_oid_ptr_from_cid(oid, cid);
-        // printk("Updating lock for OID: %llu from CID: %d by PID: %d OP: %d\n", oid, cid, current->pid, op);
-
-        if (oid_ptr == NULL) {
-                printk("OID %llu deleted or is invalid\n", oid);
-                return;
-        }
+        printk("Updating lock for OID: %llu from CID: %d by PID: %d OP: %d\n", oid, cid, current->pid, op);
 
         if(op == 1) {
                 // Lock the oid
@@ -291,7 +283,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
                 vtp = virt_to_phys((void *)kmalloc_ptr);
                 oid_ptr->address = (__u64)kmalloc_ptr;
 
-                printk("Assigning new mem for OID: %ld\n", vma->vm_pgoff);
+                printk("Assigning new mem for OID: %ld from PID: %d\n", vma->vm_pgoff, current->pid);
                 // printk("OID addr %llu\n", oid_ptr->address);
                 // printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
@@ -310,7 +302,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         } else {
                 vtp = virt_to_phys((void *)oid_ptr->address);
 
-                printk("Accessing mem for OID: %ld\n", vma->vm_pgoff);
+                printk("Accessing mem for OID: %ld\n from PID: %d", vma->vm_pgoff, current->pid);
                 // printk("OID addr %llu\n", oid_ptr->address);
                 // printk("VTP: %llu\n", vtp);
                 // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
