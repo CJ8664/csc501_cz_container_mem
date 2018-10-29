@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
         // try delete something
         i = rand() % number_of_objects;
-        i = 1;
+        i = 0;
         mcontainer_lock(devfd, i);
         gettimeofday(&current_time, NULL);
         mcontainer_free(devfd, i);
