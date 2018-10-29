@@ -276,7 +276,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         // Calculate requested page size
         requested_size = vma->vm_end - vma->vm_start;
 
-        if (oid_ptr->address == -1) {
+        if (oid_ptr->address == NULL) {
 
                 kmalloc_ptr = NULL;
                 kmalloc_ptr = kmalloc(requested_size, GFP_KERNEL);
@@ -396,9 +396,8 @@ int memory_container_free(struct memory_container_cmd __user *user_cmd)
 
         // Free the memory held by the object
         printk("Trying to free Memory for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
-        printk("VOID pointer %pS\n", (void *)oid_ptr->address);
-        printk("VOID pointer %llu\n", oid_ptr->address);
-        oid_ptr->address = -1;
+        printk("VOID pointer %pS\n", oid_ptr->address);
+        oid_ptr->address = NULL;
         kfree(oid_ptr->address);
         printk("Memory freed for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
 
