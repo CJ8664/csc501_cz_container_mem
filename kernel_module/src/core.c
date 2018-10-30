@@ -43,6 +43,7 @@
 #include <linux/poll.h>
 #include <linux/mutex.h>
 #include <linux/sched.h>
+#include "ioctl.c"
 
 extern struct miscdevice memory_container_dev;
 // extern void free_all_ds();
