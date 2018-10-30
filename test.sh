@@ -6,11 +6,12 @@ if [ $# -ne 4 ]; then
     exit
 fi
 
-number_of_objects=$1 
-max_size_of_objects=$2 
+number_of_objects=$1
+max_size_of_objects=$2
 number_of_processes=$3
 number_of_containers=$4
 
+sudo dmesg -C
 sudo insmod kernel_module/memory_container.ko
 sudo chmod 777 /dev/mcontainer
 ./benchmark/benchmark $1 $2 $3 $4
