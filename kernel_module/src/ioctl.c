@@ -263,8 +263,13 @@ void free_all_ds() {
 
         // printk("Start freeing everything\n");
         // Iterate over the list and kfree everything
+
+        // For OID list
         struct oid_node *prev_oid_node;
         struct oid_node *temp_oid_node = oid_list;
+        // For PID list
+        struct pid_node *prev_pid_node;
+        struct pid_node *temp_pid_node = pid_list;
 
         while (temp_oid_node != NULL) {
                 prev_oid_node = temp_oid_node;
@@ -272,10 +277,6 @@ void free_all_ds() {
                 kfree(prev_oid_node->address);
                 kfree(prev_oid_node);
         }
-
-        // Iterate over the list and kfree everything
-        struct pid_node *prev_pid_node;
-        struct pid_node *temp_pid_node = pid_list;
 
         while (temp_pid_node != NULL) {
                 prev_pid_node = temp_pid_node;
