@@ -263,7 +263,7 @@ void free_all_ds() {
 
         // printk("Start freeing everything\n");
         // Iterate over the list and kfree everything
-        struct oid_node *prev_oid_node = NULL;
+        struct oid_node *prev_oid_node;
         struct oid_node *temp_oid_node = oid_list;
 
         while (temp_oid_node != NULL) {
@@ -274,7 +274,7 @@ void free_all_ds() {
         }
 
         // Iterate over the list and kfree everything
-        struct pid_node *prev_pid_node = NULL;
+        struct pid_node *prev_pid_node;
         struct pid_node *temp_pid_node = pid_list;
 
         while (temp_pid_node != NULL) {
@@ -310,7 +310,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
                 vtp = virt_to_phys(kmalloc_ptr);
 
                 printk("Assigning new mem for OID: %ld from PID: %d\n", vma->vm_pgoff, current->pid);
-                printk("OID addr %llu\n", oid_ptr->address);
+                printk("OID addr %pS\n", oid_ptr->address);
                 printk("VTP: %llu\n", vtp);
                 printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
                 printk("Requested size: %lu\n", requested_size);
@@ -329,7 +329,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
                 vtp = virt_to_phys(oid_ptr->address);
 
                 printk("Accessing mem for OID: %ld\n from PID: %d", vma->vm_pgoff, current->pid);
-                printk("OID addr %llu\n", oid_ptr->address);
+                printk("OID addr %pS\n", oid_ptr->address);
                 printk("VTP: %llu\n", vtp);
                 printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
                 printk("Requested size: %lu\n", requested_size);
