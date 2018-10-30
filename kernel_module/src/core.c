@@ -45,7 +45,7 @@
 #include <linux/sched.h>
 
 extern struct miscdevice memory_container_dev;
-extern void free_all_ds();
+// extern void free_all_ds();
 
 int memory_container_init(void)
 {
