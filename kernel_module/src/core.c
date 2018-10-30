@@ -65,6 +65,7 @@ int memory_container_init(void)
 
 void memory_container_exit(void)
 {
+        printk("Will call free here");
         free_all_ds();
         misc_deregister(&memory_container_dev);
 }
