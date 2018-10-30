@@ -45,6 +45,7 @@
 #include <linux/sched.h>
 
 extern struct miscdevice memory_container_dev;
+extern void free_all_ds();
 
 int memory_container_init(void)
 {
@@ -64,5 +65,6 @@ int memory_container_init(void)
 
 void memory_container_exit(void)
 {
+        free_all_ds();
         misc_deregister(&memory_container_dev);
 }

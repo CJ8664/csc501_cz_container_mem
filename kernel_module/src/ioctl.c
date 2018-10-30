@@ -45,8 +45,6 @@
 #include <linux/sched.h>
 #include <linux/kthread.h>
 
-#define LEN (64*1024)
-
 // Mutex for performing any updates on pid_list
 static DEFINE_MUTEX(pid_list_lock);
 
@@ -258,6 +256,31 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         }
         return;
 }
+
+extern void free_all_ds() {
+
+        // Iterate over the list and kfree everything
+        struct oid_node *prev_oid_node = NULL;
+        struct oid_node *temp_oid_node = oid_list;
+
+        while (temp_oid_node != NULL) {
+                prev_oid_node = temp_oid_node;
+                temp_oid_node = temp_oid_node->next;
+                kfree(prev_oid_node->address);
+                kfree(prev_oid_node);
+        }
+
+        // Iterate over the list and kfree everything
+        struct pid_node *prev_pid_node = NULL;
+        struct pid_node *temp_pid_node = pid_list;
+
+        while (temp_pid_node != NULL) {
+                prev_pid_node = temp_pid_node;
+                temp_pid_node = temp_pid_node->next;
+                kfree(prev_pid_node);
+        }
+}
+
 
 int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 {
