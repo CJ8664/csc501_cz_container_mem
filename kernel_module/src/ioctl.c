@@ -285,7 +285,6 @@ void free_all_ds() {
         // printk("Done freeing everything\n");
 }
 
-
 int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 {
         void *kmalloc_ptr;
@@ -310,15 +309,15 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
                 oid_ptr->address = kmalloc_ptr;
                 vtp = virt_to_phys(kmalloc_ptr);
 
-                // printk("Assigning new mem for OID: %ld from PID: %d\n", vma->vm_pgoff, current->pid);
-                // printk("OID addr %llu\n", oid_ptr->address);
-                // printk("VTP: %llu\n", vtp);
-                // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
-                // printk("Requested size: %lu\n", requested_size);
-                // printk("Start: %lu\n", vma->vm_start);
-                // printk("End: %lu\n", vma->vm_end);
-                // printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
-                // printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
+                printk("Assigning new mem for OID: %ld from PID: %d\n", vma->vm_pgoff, current->pid);
+                printk("OID addr %llu\n", oid_ptr->address);
+                printk("VTP: %llu\n", vtp);
+                printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
+                printk("Requested size: %lu\n", requested_size);
+                printk("Start: %lu\n", vma->vm_start);
+                printk("End: %lu\n", vma->vm_end);
+                printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
+                printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
 
                 if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
                 {
@@ -329,15 +328,15 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         } else {
                 vtp = virt_to_phys(oid_ptr->address);
 
-                // printk("Accessing mem for OID: %ld\n from PID: %d", vma->vm_pgoff, current->pid);
-                // printk("OID addr %llu\n", oid_ptr->address);
-                // printk("VTP: %llu\n", vtp);
-                // printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
-                // printk("Requested size: %lu\n", requested_size);
-                // printk("Start: %lu\n", vma->vm_start);
-                // printk("End: %lu\n", vma->vm_end);
-                // printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
-                // printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
+                printk("Accessing mem for OID: %ld\n from PID: %d", vma->vm_pgoff, current->pid);
+                printk("OID addr %llu\n", oid_ptr->address);
+                printk("VTP: %llu\n", vtp);
+                printk("PAGE_SIZE: %lu\n", PAGE_SIZE);
+                printk("Requested size: %lu\n", requested_size);
+                printk("Start: %lu\n", vma->vm_start);
+                printk("End: %lu\n", vma->vm_end);
+                printk("PAGE_SHIFT %d\n", PAGE_SHIFT);
+                printk("PAGE_SHIFT value %llu\n",vtp >> PAGE_SHIFT);
 
                 if (remap_pfn_range(vma, vma->vm_start, vtp >> PAGE_SHIFT, vma->vm_end - vma->vm_start, vma->vm_page_prot) < 0)
                 {
@@ -382,14 +381,12 @@ int memory_container_unlock(struct memory_container_cmd __user *user_cmd)
         return 0;
 }
 
-
 int memory_container_delete(struct memory_container_cmd __user *user_cmd)
 {
         // Delete the PID from list
         remove_pid_node(current->pid);
         return 0;
 }
-
 
 int memory_container_create(struct memory_container_cmd __user *user_cmd)
 {
@@ -404,7 +401,6 @@ int memory_container_create(struct memory_container_cmd __user *user_cmd)
 
         return 0;
 }
-
 
 int memory_container_free(struct memory_container_cmd __user *user_cmd)
 {
