@@ -308,7 +308,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 
         if (oid_ptr->valid == -1) {
 
-                oid_ptr->valid == 1;
+                oid_ptr->valid = 1;
                 kmalloc_ptr = NULL;
                 kmalloc_ptr = kmalloc(requested_size, GFP_KERNEL);
                 oid_ptr->address = kmalloc_ptr;
