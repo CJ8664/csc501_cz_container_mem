@@ -261,7 +261,7 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
 
 void free_all_ds() {
 
-        printk("Start freeing everything");
+        // printk("Start freeing everything\n");
         // Iterate over the list and kfree everything
         struct oid_node *prev_oid_node = NULL;
         struct oid_node *temp_oid_node = oid_list;
@@ -282,7 +282,7 @@ void free_all_ds() {
                 temp_pid_node = temp_pid_node->next;
                 kfree(prev_pid_node);
         }
-        printk("Done freeing everything");
+        // printk("Done freeing everything\n");
 }
 
 
