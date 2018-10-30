@@ -65,6 +65,7 @@ struct pid_node {
 struct oid_node {
         int cid;
         __u64 oid;
+        int valid;
         void *address;
         struct mutex *lock;
         struct oid_node *next;
@@ -194,6 +195,7 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                         oid_list->cid = cid;
                         oid_list->next = NULL;
                         oid_list->address = NULL;
+                        oid_list->valid = -1;
                         oid_list->lock = (struct mutex *)kmalloc(sizeof(struct mutex), GFP_KERNEL);
                         mutex_init(oid_list->lock);
                         oid_ptr = oid_list;
@@ -214,6 +216,7 @@ struct oid_node* add_oid_node(__u64 oid, int cid){
                         new_oid_node->cid = cid;
                         new_oid_node->next = NULL;
                         new_oid_node->address = NULL;
+                        new_oid_node->valid = -1;
                         new_oid_node->lock = (struct mutex *)kmalloc(sizeof(struct mutex), GFP_KERNEL);
                         mutex_init(new_oid_node->lock);
                         prev_oid_node->next = new_oid_node;
@@ -303,8 +306,9 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
         // Calculate requested page size
         requested_size = vma->vm_end - vma->vm_start;
 
-        if (oid_ptr->address == NULL) {
+        if (oid_ptr->valid == -1) {
 
+                oid_ptr->valid == 1;
                 kmalloc_ptr = NULL;
                 kmalloc_ptr = kmalloc(requested_size, GFP_KERNEL);
                 oid_ptr->address = kmalloc_ptr;
@@ -422,7 +426,7 @@ int memory_container_free(struct memory_container_cmd __user *user_cmd)
         printk("Trying to free Memory for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
         printk("VOID pointer %pS\n", oid_ptr->address);
         kfree(oid_ptr->address);
-        oid_ptr->address = NULL;
+        oid_ptr->valid = -1;
         printk("Memory freed for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
 
         return 0;
