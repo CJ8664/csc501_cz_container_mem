@@ -310,7 +310,7 @@ int memory_container_mmap(struct file *filp, struct vm_area_struct *vma)
 
                 oid_ptr->valid = 1;
                 kmalloc_ptr = NULL;
-                kmalloc_ptr = kzmalloc(requested_size, GFP_KERNEL);
+                kmalloc_ptr = kzalloc(requested_size, GFP_KERNEL);
                 oid_ptr->address = kmalloc_ptr;
                 vtp = virt_to_phys(kmalloc_ptr);
 
