@@ -421,8 +421,8 @@ int memory_container_free(struct memory_container_cmd __user *user_cmd)
         // Free the memory held by the object
         printk("Trying to free Memory for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
         printk("VOID pointer %pS\n", oid_ptr->address);
-        oid_ptr->address = NULL;
         kfree(oid_ptr->address);
+        oid_ptr->address = NULL;
         printk("Memory freed for OID: %llu in CID: %d by PID %d\n", user_cmd_kernal->oid, cid, current->pid);
 
         return 0;
