@@ -51,6 +51,8 @@ static DEFINE_MUTEX(pid_list_lock);
 // Mutex for performing any updates on oid_list
 static DEFINE_MUTEX(oid_list_lock);
 
+extern void free_all_ds(void);
+
 // Node that stores PID:CID mapping
 struct pid_node {
         int cid;
@@ -257,7 +259,7 @@ void update_lock_oid_in_cid(__u64 oid, int cid, int op){
         return;
 }
 
-extern void free_all_ds() {
+void free_all_ds() {
 
         // Iterate over the list and kfree everything
         struct oid_node *prev_oid_node = NULL;
